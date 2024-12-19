@@ -36,6 +36,9 @@ func main() {
 	cmdsPtr.register("register", handlerRegister)
 	cmdsPtr.register("reset", handlerReset)
 	cmdsPtr.register("users", handleUsers)
+	cmdsPtr.register("agg", handleAgg)
+	cmdsPtr.register("addfeed", handleAddFeed)
+	cmdsPtr.register("feeds", handleFeeds)
 
 	if err != nil {
 		log.Fatalf("Error registering login\n")

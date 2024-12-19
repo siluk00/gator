@@ -71,6 +71,64 @@ func handlerRegister(s *state, cmd command) error {
 	return nil
 }
 
+func handleAgg(s *state, cmd command) error {
+	rssfeed, err := fetchFeed(context.Background(), "https://www.wagslane.dev/index.xml")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", rssfeed)
+	return nil
+}
+
+func handleFeeds(s *state, cmd command) error {
+	if len(cmd.args) > 0 {
+		return fmt.Errorf("feeds command takes no args")
+	}
+
+	feeds, err := s.db.GetFeed(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, feed := range feeds {
+		userName, err := s.db.GetNameById(context.Background(), feed.UserID)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("* %s\t%s\t%s\n", feed.Name, feed.Url, userName)
+	}
+
+	return nil
+}
+
+func handleAddFeed(s *state, cmd command) error {
+	if len(cmd.args) < 2 {
+		return fmt.Errorf("addfeed takes two args: name and url")
+	}
+
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+
+	if err != nil {
+		return err
+	}
+
+	var feedParams database.CreateFeedParams
+	feedParams.ID = uuid.New()
+	feedParams.Name = cmd.args[0]
+	feedParams.Url = cmd.args[1]
+	feedParams.UserID = user.ID
+	feed, err := s.db.CreateFeed(context.Background(), feedParams)
+
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("%s created a feed with name: %s, url: %s\n", user.Name, feed.Name, feed.Url)
+	return nil
+}
+
 func handleUsers(s *state, cmd command) error {
 	if len(cmd.args) > 0 {
 		return fmt.Errorf("users command takes no args")
