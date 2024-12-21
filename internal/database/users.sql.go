@@ -56,18 +56,6 @@ func (q *Queries) DeleteUsers(ctx context.Context) error {
 	return err
 }
 
-const getNameById = `-- name: GetNameById :one
-SELECT name FROM users 
-WHERE id=$1
-`
-
-func (q *Queries) GetNameById(ctx context.Context, id uuid.UUID) (string, error) {
-	row := q.db.QueryRowContext(ctx, getNameById, id)
-	var name string
-	err := row.Scan(&name)
-	return name, err
-}
-
 const getUser = `-- name: GetUser :one
 SELECT id, created_at, updated_at, name FROM users
     WHERE name = $1
@@ -83,6 +71,30 @@ func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 		&i.Name,
 	)
 	return i, err
+}
+
+const getUserIdByName = `-- name: GetUserIdByName :one
+SELECT id FROM users
+WHERE name=$1
+`
+
+func (q *Queries) GetUserIdByName(ctx context.Context, name string) (uuid.UUID, error) {
+	row := q.db.QueryRowContext(ctx, getUserIdByName, name)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const getUserNameById = `-- name: GetUserNameById :one
+SELECT name FROM users 
+WHERE id=$1
+`
+
+func (q *Queries) GetUserNameById(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserNameById, id)
+	var name string
+	err := row.Scan(&name)
+	return name, err
 }
 
 const getUsers = `-- name: GetUsers :many

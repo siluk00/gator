@@ -37,8 +37,12 @@ func main() {
 	cmdsPtr.register("reset", handlerReset)
 	cmdsPtr.register("users", handleUsers)
 	cmdsPtr.register("agg", handleAgg)
-	cmdsPtr.register("addfeed", handleAddFeed)
+	cmdsPtr.register("addfeed", middlewareLoggedIn(handleAddFeed))
 	cmdsPtr.register("feeds", handleFeeds)
+	cmdsPtr.register("follow", middlewareLoggedIn(handleFollow))
+	cmdsPtr.register("following", middlewareLoggedIn(handleFollowing))
+	cmdsPtr.register("unfollow", middlewareLoggedIn(handleUnfollow))
+	cmdsPtr.register("browse", middlewareLoggedIn(handleBrowse))
 
 	if err != nil {
 		log.Fatalf("Error registering login\n")
